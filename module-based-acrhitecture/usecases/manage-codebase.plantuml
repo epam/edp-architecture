@@ -1,0 +1,84 @@
+@startuml
+
+left to right direction
+skinparam packageStyle rectangle
+
+actor :EDP User: as edp_user << Human >>
+' actor :Admin Console: as admin_console << Application >>
+
+
+
+rectangle "Manage Codebase" {
+
+
+  (Create codebase) as create_codebase
+  edp_user -- create_codebase
+
+  (create base folder  in jenkins) as create_base_folder
+  create_codebase ..> create_base_folder : include
+  actor :Jenkins Operator: as jenkins_operator << Operator >>
+  create_base_folder -- jenkins_operator
+
+  (create repo in vcs) as create_repo_in_vcs
+  create_codebase ..> create_repo_in_vcs : include
+  actor :VCS Operator: as vcs_operator << Operator >>
+  create_repo_in_vcs -- vcs_operator
+
+
+  (add branch in cicd components) as add_branch_to_cicd
+  create_codebase ..> add_branch_to_cicd : include
+
+  (create pipelines for branch in jenkins) as create_pipelines
+  add_branch_to_cicd ..> create_pipelines : include
+  create_pipelines -- jenkins_operator
+
+  (create branch in repo) as create_branch_in_repo
+  add_branch_to_cicd ..> create_branch_in_repo : include (master)
+  create_branch_in_repo -- vcs_operator
+
+  (register in Gerrit) as register_in_gerrit
+  create_codebase ..> register_in_gerrit : include
+  actor :Gerrit Operator: as gerrit_operator << Operator >>
+  register_in_gerrit -- gerrit_operator
+
+
+  (Clone codebase) as clone_codebase
+  edp_user -- clone_codebase
+  clone_codebase ..> create_base_folder : include
+  clone_codebase ..> add_branch_to_cicd : include
+  clone_codebase ..> register_in_gerrit : include
+
+
+  usecase modify as "Modify codebase
+  ==
+  Really  rare case.
+  Can be used for managing mistakes
+  to change language, build tool etc. I
+  deally should not affect any other tool
+  "
+  edp_user -- modify
+
+
+
+  (See actual data) as see_actual_data
+  edp_user -- see_actual_data
+
+  usecase delete_codebase as "Delete codebase
+  ==
+  "
+
+
+  (Add Branch) as create_codebase_branch
+  edp_user -- create_codebase_branch
+  create_codebase_branch ..> add_branch_to_cicd : include
+
+
+  edp_user -- delete_codebase
+  (delete branch in cicd components) as delete_branch_from_cicd
+  delete_codebase ..> delete_branch_from_cicd : include
+  delete_codebase ..> (delete from gerrit) : include
+
+}
+
+
+@enduml
