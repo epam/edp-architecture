@@ -1,0 +1,173 @@
+@startuml
+participant "EDP Installer" as edp
+participant "Kubernetes" as k8s
+participant "Keycloak Server" as server
+
+edp -> edp: Well-known params
+note right
+Keycloak Web URL
+Realm name
+Jenkins Client id
+Jenkins WEB URL
+Sonar Claim name = "Roles"
+Nexus Client id
+Gerrit WEB URL
+Sonar WEB URL
+Nexus WEB URL
+Admin Console WEB URL
+EDP Client id (for Openshift)
+edp_super_admins list
+edp_admins list
+edp_viewers list
+end note
+
+activate edp
+
+edp -> k8s: Read **Sonar Client** secret
+activate k8s
+k8s -> edp: Sonar Client id\nSonar Client secret
+deactivate k8s
+
+edp -> k8s: Read **Gerrit Client** secret
+activate k8s
+k8s -> edp: Gerrit Client id\nGerrit Client secret
+deactivate k8s
+
+edp -> k8s: Read **Keycloak Admin User** secret
+note right
+This user is used to login to Keycloak REST API
+end note
+activate k8s
+k8s -> edp: Keycloak admin login\nKeycloak admin password
+deactivate k8s
+
+edp -> k8s: Read **Admin Console Reader User** secret
+activate k8s
+k8s -> edp: AC Reader username\nAC Reader password
+deactivate k8s
+
+edp -> k8s: Read **Admin Console Creator User** secret
+activate k8s
+k8s -> edp: AC Creator username\nAC Creator password
+deactivate k8s
+
+edp -> k8s: Read **Admin Console Client** secret
+activate k8s
+k8s -> edp: AC Client id\nAC Client secret
+deactivate k8s
+
+edp -> server: Auth request:\nAdmin login\nAdmin password
+activate server
+server -> edp: Access token
+deactivate server
+
+edp -> edp: Generate **EDP Client** secret
+note right
+For **Openshift** realm
+end note
+
+edp -> server: Create EDP realm
+note right
+**Params**:
+Access Token
+Realm name
+Jenkins Client id
+Jenkins WEB URL
+Gerrit Client id
+Gerrit Client secret
+Gerrit WEB URL
+Sonar Client id
+Sonar Client secret
+Sonar WEB URL
+Sonar Claim name
+Nexus Client id
+Nexus WEB URL
+Admin Console Client id
+Admin Console Client secret
+Admin Console WEB URL
+EDP Client id
+EDP Client secret
+Admin Console Reader username
+Admin Console Reader password
+Admin Console Creator username
+Admin Console Creator password
+end note
+
+edp -> server: Create **EDP Client** in Openshift realm
+activate server
+server -> edp: EDP Client location
+deactivate server
+
+edp -> server: Create **administrator** role in EDP Client in Openshift realm\nUsing: EDP Client location
+activate server
+server -> edp: EDP Client Administrator role location
+deactivate server
+
+edp -> server: Get **administrator** role representation\nUsing: EDP Client Administrator role location
+activate server
+server -> edp: EDP Client Administrator role representation
+deactivate server
+
+edp -> server: Create **developer** role in EDP Client in Openshift realm\nUsing: EDP Client location
+activate server
+server -> edp: EDP Client Developer role location
+deactivate server
+
+edp -> server: Get **developer** role representation\nUsing: EDP Client Developer role location
+activate server
+server -> edp: EDP Client Developer role representation
+deactivate server
+
+edp -> server: Get **Master Client** in Openshift realm
+activate server
+server -> edp: Master Client id
+deactivate server
+
+edp -> server: Get **create-realm** role in Master Client in Openshift realm\nUsing Master Client id
+activate server
+server -> edp: Create Realm Role representation
+deactivate server
+
+loop for each user in edp_super_admins list
+    edp -> server: Create user in Openshift realm\nParams: username, realm, password, update_required
+    activate server
+    note right
+        Ignore if user already exists
+    end note
+    server -> edp: User location
+    deactivate server
+
+    edp -> server: Assign role in edp client\nParams: User Location, EDP Client id, Admin Role representation
+
+    edp -> server: Assign role in master client\nParams: User Location, Master Client id, Create realm representation
+end
+
+loop for each user in edp_admins list
+    edp -> server: Create user in Openshift realm\nParams: username, realm, password, update_required
+    activate server
+    note right
+        Ignore if user already exists
+    end note
+    server -> edp: User location
+    deactivate server
+
+    edp -> server: Assign role in edp client\nParams: User Location, EDP Client id, Admin Role representation
+end
+
+loop for each user in edp_viewers list
+    edp -> server: Create user in Openshift realm\nParams: username, realm, password, update_required
+    activate server
+    note right
+        Ignore if user already exists
+    end note
+    server -> edp: User location
+    deactivate server
+
+    edp -> server: Assign role in edp client\nParams: User Location, EDP Client id, Developer Role representation
+end
+
+edp -> k8s: Change Nexus DC to add Keycloak Proxy
+
+deactivate edp
+
+@enduml
