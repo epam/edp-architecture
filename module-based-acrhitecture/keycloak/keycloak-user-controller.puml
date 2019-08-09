@@ -1,0 +1,44 @@
+@startuml
+entity "CR Keycloak User" as cr_user
+participant "Keycloak-user-controller" as keycloak_user_controller
+note right of keycloak_user_controller
+Startup params:
+Keycloak server web URL
+Keycloak admin login
+Keycloak admin password
+Central Keycloak realm name "Aka Openshift"
+end note
+participant "Keycloak Server" as server
+
+
+cr_user -> keycloak_user_controller: \
+Read \n\
+**Params**: \n\
+username \n\
+password \n\
+email \n\
+first name \n\
+last name \n\
+realm_roles \n\
+client_roles \n\
+is central
+
+activate keycloak_user_controller
+
+keycloak_user_controller -> keycloak_user_controller: Define the realm
+
+keycloak_user_controller -> server: \
+Create user \n\
+**Params:** \n\
+username \n\
+password \n\
+email \n\
+first name \n\
+last name \n\
+
+keycloak_user_controller -> server: Assign realm_roles
+keycloak_user_controller -> server: Assign client roles
+
+deactivate keycloak_user_controller
+
+@enduml

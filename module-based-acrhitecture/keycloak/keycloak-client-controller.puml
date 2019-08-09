@@ -1,0 +1,48 @@
+@startuml
+entity "CR Keycloak Client" as cr_client
+participant "Keycloak-client-controller" as keycloak_client_controller
+note right of keycloak_client_controller
+Startup params:
+Keycloak server web URL
+Keycloak admin login
+Keycloak admin password
+Central Keycloak realm name "Aka Openshift"
+end note
+participant "Keycloak Server" as server
+
+
+cr_client -> keycloak_client_controller: \
+Read \n\
+**Params**: \n\
+client id \n\
+client secret \n\
+is public client \n\
+web url \n\
+direct access type enabled \n\
+client roles \n\
+realm roles \n\
+is central \n\
+protocol mappers
+
+activate keycloak_client_controller
+
+keycloak_client_controller -> keycloak_client_controller: Define the target realm
+
+keycloak_client_controller -> server: \
+Create client \n\
+**Params:** \n\
+client id \n\
+client secret \n\
+is public client \n\
+realm \n\
+web url \n\
+direct access type enabled \n\
+protocol mappers \n\
+
+keycloak_client_controller -> server: Create realm roles
+keycloak_client_controller -> server: Update realm composite roles
+keycloak_client_controller -> server: Create client roles
+
+deactivate keycloak_client_controller
+
+@enduml

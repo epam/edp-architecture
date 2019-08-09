@@ -1,0 +1,58 @@
+@startuml
+participant "EDP Installer" as edp
+participant "Sonar Operator" as sonar_operator
+participant "Nexus Operator" as nexus_operator
+participant "Gerrit Operator" as gerrit_operator
+participant "Jenkins Operator" as jenkins_operator
+participant "Admin Console Operator" as ac_operator
+
+box "Keycloak Operator"
+entity "CR Keycloak Realm" as cr_realm
+participant "Keycloak-realm-controller" as keycloak_realm_controller
+entity "CR Keycloak Client" as cr_client
+participant "Keycloak-client-controller" as keycloak_client_controller
+entity "CR Keycloak User" as cr_user
+participant "Keycloak-user-controller" as keycloak_user_controller
+participant "Keycloak Server" as server
+end box
+
+loop
+cr_realm -> keycloak_realm_controller: Read
+activate keycloak_realm_controller
+keycloak_realm_controller -> server: Reconcile
+deactivate keycloak_realm_controller
+end
+
+loop
+cr_client -> keycloak_client_controller: Read
+activate keycloak_client_controller
+keycloak_client_controller -> server: Reconcile
+deactivate keycloak_client_controller
+end
+
+loop
+cr_user -> keycloak_user_controller: Read
+activate keycloak_user_controller
+keycloak_user_controller -> server: Reconcile
+deactivate keycloak_user_controller
+end
+
+edp -> cr_realm: Create **Main realm**
+activate edp
+edp -> cr_user: Create **user** list
+deactivate edp
+
+sonar_operator -> cr_client: Create **Sonar Client**
+nexus_operator -> cr_client: Create **Nexus Client**
+gerrit_operator -> cr_client: Create **Gerrit Client**
+jenkins_operator -> cr_client: Create **Jenkins Client**
+ac_operator -> cr_client: Create **Admin Console Client**
+activate ac_operator
+
+ac_operator -> cr_user: Create **SA Reader Admin Console**
+ac_operator -> cr_user: Create **SA Creator Admin Console**
+deactivate ac_operator
+
+deactivate edp
+
+@enduml
