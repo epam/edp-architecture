@@ -1,0 +1,247 @@
+
+@startuml
+
+package edp.epam.com {
+
+  package sdk {
+    class DeliverySpace {
+      -- annotations --
+      -- metadata --
+      -- spec --
+      EDPComponent[] components
+      -- status --
+      -- method --
+    }
+
+
+    enum EdpComponentType {
+      CODE_REVIEW
+      CI_SERVER
+      CD_SERVER
+      STATIC_ANALYSES
+      ARTIFACT_REPOSITORY
+      VCS
+    }
+
+    EdpComponentType "*" -left-> "1" EdpComponent
+
+    enum EdpLocationType {
+      EXTERNAL
+      INTERNAL
+    }
+    EdpLocationType "*" --> "1" EdpComponent
+
+    class EdpComponentAccessCredentials {
+      String extrenalUrl
+      Credentials credentials
+    }
+    EdpComponentAccessCredentials "1" --> "0" EdpComponent
+
+
+    abstract class EdpComponent {
+      -- annotations --
+      EdpComponentType[] componentTypes
+      edpTenant:
+      -- metadata --
+      -- spec --
+      EdpLocationType location
+      EdpComponentAccessCredentials eternalCredential
+      -- status --
+      status
+      externalUrl
+      -- method --
+      install()
+      configure()
+      expose()
+      integrate()
+    }
+    EdpComponent "*" --> "1" DeliverySpace
+
+    package commands.codebase {
+      package commands.codebase.vcs {
+        class EdpRegisterRepositoryInVcsCommand {
+          add repo to gerrit and add to replication
+        }
+        class EdpAddBranchInVcsCommand {
+          add branch in gerrit
+        }
+      }
+      package commands.codebase.codereview {
+        class EdpRegisterApplicationInCodeRewiewCommand {
+          create separate group in gerrit
+        }
+        class EdpAddBranchInVcsCommand {
+        }
+      }
+      package commands.codebase.ci {
+        class EdpCreateSpaceForCodebaseCommand {
+          create folder in Jenkins wtih create release pipeline
+        }
+        class EdpAddCiJobForBranchCommand {
+        }
+      }
+    }
+    package commands.cdpipeline {
+      class EdpAddCdpipelinesFolder {
+        add folder in Jenkins
+      }
+      class EdpAddCdpipelineForStage {
+        add pipleine for each stage
+      }
+      class EdpCreateNamespaceForStage {
+        create environment for apps
+      }
+    }
+  }
+
+  package domain {
+
+
+    class Codebase {
+      -- annotations --
+      -- metadata --
+      String name
+      -- spec --
+      CodebaseType type
+      VCS
+      techFramework
+      -- status --
+    }
+
+    enum CodebaseType {
+      APPLICATION
+      AUTOTESTS
+      LIBRARY
+    }
+    Codebase --> CodebaseType
+
+
+    class ThirdPartyService {
+      -- annotations --
+      -- metadata --
+      -- spec --
+      -- status --
+    }
+
+    class CodebaseBranch {
+    }
+    Codebase "1" *-- "many" CodebaseBranch
+
+
+    class CodebaseArtifact {
+    }
+    CodebaseBranch "1" *-- "many" CodebaseArtifact
+
+    class CodebaseArtifactStream {
+    }
+    CodebaseArtifact "many" *-- "many" CodebaseArtifactStream
+
+
+    class CodebaseArtifactDeploy {
+      -- annotations --
+      -- metadata --
+      -- spec --
+        CdStageApplication stage
+      -- status --
+    }
+    CodebaseArtifact "1" *-- "many" CodebaseArtifactDeploy
+
+    class CdPipeline {
+      -- annotations --
+      -- metadata --
+      -- spec --
+        CodebaseArtifactStream[] applications
+        ThirdPartyService[] services
+      -- status --
+    }
+    CdPipeline "1" --> "*" commands.cdpipeline
+    CdPipeline "many" *-- "many" CodebaseArtifactStream
+    CdPipeline "many" *-- "many" ThirdPartyService
+
+    class CdPipelineStage {
+      -- annotations --
+      -- metadata --
+      -- spec --
+        CdStageApplication[] applications
+        CdQualityGate[] qualityGates
+        TriggerType triggerType
+      -- status --
+    }
+    CdPipelineStage "1" *-- "many" CdStageApplication
+    CdPipelineStage "1" *-- "many" CdQualityGate
+
+    enum TriggerType {
+      MANUAL
+      NEW_ARTIFACT
+    }
+    CdPipelineStage --> TriggerType
+
+    class CdStageApplication {
+      -- annotations --
+      -- metadata --
+      -- spec --
+        CodebaseArtifactStream inputStream
+        CodebaseArtifactStream outputStream
+      -- status --
+    }
+    CdStageApplication "1" *-- "input" CodebaseArtifactStream
+    CdStageApplication "0..1" *-- "output" CodebaseArtifactStream
+    CdStageApplication "1" *-- "many" CodebaseArtifactDeploy
+
+    CdPipeline "1" *-- "many" CdPipelineStage
+
+    class CdQualityGate {
+      -- annotations --
+      -- metadata --
+      -- spec --
+        CdQualityGateType type
+        CodebaseBranch autotest
+        String command2Run
+        String command2CheckQualityGate
+      -- status --
+
+    }
+    CdQualityGate "1" *-- "1" CodebaseBranch
+
+
+  }
+
+  package components {
+    class Gerrit {
+      -- annotations --
+      componentTypes: CODE_REVIEW, VCS
+      -- metadata --
+      -- spec --
+      -- status --
+    }
+
+    class Jenkins {
+      -- annotations --
+      componentClass: ciserver, cdServer
+      -- metadata --
+      -- spec --
+      -- status --
+    }
+
+    class Nexus {
+    }
+
+    class Sonar {
+    }
+
+    class BitBucket {
+    }
+
+
+    class Gitlab {
+    }
+    EdpComponent<|--Gerrit
+    EdpComponent<|--Jenkins
+    EdpComponent<|--Nexus
+    EdpComponent<|--Sonar
+    EdpComponent<|--BitBucket
+    EdpComponent<|--Gitlab
+  }
+}
+
+@enduml
