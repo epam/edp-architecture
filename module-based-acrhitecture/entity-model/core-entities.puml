@@ -1,4 +1,3 @@
-
 @startuml
 
 package edp.epam.com {
@@ -224,9 +223,22 @@ package edp.epam.com {
     }
 
     class Nexus {
+      -- annotations --
+      -- metadata --
+      -- spec --
+	  + version
+      + volumes
+      -- status --
+      - Available
+      - LastTimeUpdated
+      - Status
     }
 
     class Sonar {
+      -- annotations --
+      -- metadata --
+      -- spec --
+      -- status --
     }
 
     class BitBucket {
@@ -235,12 +247,12 @@ package edp.epam.com {
 
     class Gitlab {
     }
-    EdpComponent<|--Gerrit
-    EdpComponent<|--Jenkins
-    EdpComponent<|--Nexus
-    EdpComponent<|--Sonar
-    EdpComponent<|--BitBucket
-    EdpComponent<|--Gitlab
+    EdpComponent<|---Gerrit
+    EdpComponent<|---Jenkins
+    EdpComponent<|---Nexus
+    EdpComponent<|---Sonar
+    EdpComponent<|---BitBucket
+    EdpComponent<|---Gitlab
   }
 }
 
