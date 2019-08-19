@@ -224,14 +224,16 @@ package edp.epam.com {
 
     class Nexus {
       -- annotations --
+      - String is-credentials
+      - String ci-credentials
       -- metadata --
       -- spec --
-	  + version
-      + volumes
+	  + String version
+      + Struct volumes
       -- status --
-      - Available
-      - LastTimeUpdated
-      - Status
+      - Bool Available
+      - Time LastTimeUpdated
+      - String Status
     }
 
     class Sonar {
