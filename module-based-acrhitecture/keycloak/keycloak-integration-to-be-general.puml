@@ -7,6 +7,8 @@ participant "Jenkins Operator" as jenkins_operator
 participant "Admin Console Operator" as ac_operator
 
 box "Keycloak Operator"
+entity "CR Keycloak" as cr_keycloak
+participant "Keycloak Controller" as keycloak_controller
 entity "CR Keycloak Realm" as cr_realm
 participant "Keycloak-realm-controller" as keycloak_realm_controller
 entity "CR Keycloak Client" as cr_client
@@ -15,6 +17,13 @@ entity "CR Keycloak User" as cr_user
 participant "Keycloak-user-controller" as keycloak_user_controller
 participant "Keycloak Server" as server
 end box
+
+loop
+cr_keycloak -> keycloak_controller: Read
+activate keycloak_controller
+keycloak_controller -> server: Reconcile
+deactivate keycloak_controller
+end
 
 loop
 cr_realm -> keycloak_realm_controller: Read
@@ -37,10 +46,9 @@ keycloak_user_controller -> server: Reconcile
 deactivate keycloak_user_controller
 end
 
-edp -> cr_realm: Create **Main realm**
-activate edp
-edp -> cr_user: Create **user** list
-deactivate edp
+edp -> cr_keycloak: Create Keycloak with user list
+
+cr_keycloak -> cr_realm: Create Realm with user list
 
 sonar_operator -> cr_client: Create **Sonar Client**
 nexus_operator -> cr_client: Create **Nexus Client**
