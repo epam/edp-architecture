@@ -3,11 +3,7 @@
 
 package edp.epam.com {
 
-  domain -r-> vcs: create repositories and bracnhes
-  domain -r-> jenkins: create JenkinsFolder and JenkinsJob
-
   package domain {
-
 
     class Codebase {
       -- annotations --
@@ -18,9 +14,6 @@ package edp.epam.com {
       VCS
       techFramework
       -- status --
-      -- method --
-      +reconcileJenkinsFolder()
-      +reconcileGitRepository()
     }
 
     enum CodebaseType {
@@ -49,9 +42,6 @@ package edp.epam.com {
       -- spec --
         + String name
       -- status --
-      -- method --
-      +reconcileJenkinsJobs()
-      +reconcileGitBranch()
     }
     CodebaseBranch .u.>  Codebase : "owner ref"
     CodebaseBranch -r-> CodebaseArtifactStream : create
@@ -82,8 +72,6 @@ package edp.epam.com {
         CodebaseArtifactStream[] applications
         ThirdPartyService[] services
       -- status --
-      -- method --
-      +reconcileJenkinsFolder()
     }
     CdPipeline -d-> ThirdPartyService: create
     CdPipeline -d-> CdPipelineStage: create
@@ -117,8 +105,6 @@ package edp.epam.com {
         CdQualityGate[] qualityGates
         TriggerType triggerType
       -- status --
-      -- method --
-      +reconcileJenkinsJob()
     }
     CdPipelineStage -d-> CdQualityGate: create
     CdPipelineStage -u-> CodebaseArtifactStream : create input stream
@@ -168,12 +154,22 @@ package edp.epam.com {
     }
 
 
+'    enum EdpComponentType {
+'      CODE_REVIEW
+'      CI_SERVER
+'      CD_SERVER
+'      STATIC_ANALYSES
+'      ARTIFACT_REPOSITORY
+'      VCS
+'    }
+'
+'    EdpComponentType "*" -left-> "1" EdpComponent
 
     enum EdpLocationType {
       EXTERNAL
       INTERNAL
     }
-    EdpComponent -r-> EdpLocationType
+    EdpComponent --> EdpLocationType
 
     abstract class EdpComponent {
       -- annotations --
@@ -189,10 +185,13 @@ package edp.epam.com {
       boolean clientActive
       externalUrl
       -- method --
+      install()
+      configure()
+      expose()
+      integrate()
     }
     EdpComponent .u.> DeliverySpace : owner ref
 
-    vcs -r[hidden]-> keycloak
     package vcs {
       class GitServer {
       -- annotations --
@@ -230,7 +229,7 @@ package edp.epam.com {
       }
       EdpComponent<|--Keycloak
 
-      class KeycloakInstaller<<tbd>> {
+      class KeycloakInstaller {
       -- annotations --
       -- metadata --
       -- spec --
@@ -338,126 +337,152 @@ package edp.epam.com {
 
   }
 
-  EdpComponent<|--components: all components inherit EDPComponent
+  integration -u[hidden]-> JenkinsJobBuild
 
-  components -u-> JenkinsServiceAccount :create
-  components -u-> JenkinsPlugin :create
-  components -u-> KeycloakClient :create
+  package integration {
+      class KeycloakComponentIntegration {
+      -- annotations --
+      -- metadata --
+      -- spec --
+        ClientDetails client
+      -- status --
+      }
+      KeycloakComponentIntegration -u-> KeycloakClient : "create"
+
+
+      class JenkinsComponentIntegration {
+      -- annotations --
+      -- metadata --
+      -- spec --
+        JenkinsPlugin[] plugin
+        ServiceAccount[] serviceAccount
+      -- status --
+      }
+      JenkinsComponentIntegration -u-> JenkinsServiceAccount : "create"
+      JenkinsComponentIntegration -u-> JenkinsPlugin : "create"
+
+      class GitComponentIntegration {
+      -- annotations --
+      -- metadata --
+      -- spec --
+        GitDetails sourceGit
+      -- status --
+      }
+      JenkinsComponentIntegration -r[hidden]-> GitComponentIntegration : "create"
+      KeycloakComponentIntegration -r[hidden]-> GitComponentIntegration : "create"
+
+      class CodebaseIntegration {
+      -- annotations --
+      -- metadata --
+      -- spec --
+        String codebaseName
+        GitDetails sourceGit
+        GitDetails targetGit
+      -- status --
+      }
+      Codebase -d-> CodebaseIntegration : create
+      CodebaseIntegration -l-> GitComponentIntegration : create
+      CodebaseIntegration -u-> JenkinsFolder : "create"
+      CodebaseIntegration -u-> JenkinsJob : "create CreateReleasePipeline \n in future we can do this \n for Build and CodeReview "
+      CodebaseIntegration -u-> GitRepository : "create"
+
+      class CdPipelineIntegration {
+      -- annotations --
+      -- metadata --
+      -- spec --
+        String name
+      -- status --
+      }
+      CdPipeline -d-> CdPipelineIntegration : create
+      CdPipelineIntegration -u-> JenkinsFolder : "create"
+      CdPipelineIntegration -u-> JenkinsJob : "create job per stage"
+
+      class CodebaseBranchIntegration {
+      -- annotations --
+      -- metadata --
+      -- spec --
+        String branch
+      -- status --
+      }
+      CodebaseBranch -d-> CodebaseBranchIntegration
+     CodebaseBranchIntegration -u-> JenkinsJobBuild
+      CodebaseBranchIntegration -u-> GitBranch
+
+
+  }
 
   package components {
-    package nexus {
-      class Nexus {
-        -- annotations --
-        - String is-credentials
-        - String ci-credentials
-        -- metadata --
-        -- spec --
-        + String version
-        + Struct volumes
-        -- status --
-        - Bool Available
-        - Time LastTimeUpdated
-        - String Status
-      }
-
-      class NexusUser {
-        -- annotations --
-        -- metadata --
-        -- spec --
-        + String nexusName (optional)
-        + String name
-        + Struct role
-        -- status --
-      }
-      NexusUser .u.> Nexus : owner ref
-
-      class NexusRepository {
-        -- annotations --
-        -- metadata --
-        -- spec --
-        + String nexusName (optional)
-        + String name
-        + Struct role
-        -- status --
-      }
-      NexusRepository .u.> Nexus : owner ref
+    class Gerrit {
+      -- annotations --
+      -- metadata --
+      -- spec --
+      -- status --
     }
-
-    package sonar {
-      class Sonar {
-        -- annotations --
-        -- metadata --
-        -- spec --
-        + String version
-        -- status --
-      }
+    Gerrit -u-> JenkinsComponentIntegration :create
+    Gerrit -u-> KeycloakComponentIntegration :create
+    Gerrit -u-> GitComponentIntegration :create
 
 
-      class SonarQualityProfile {
-        -- annotations --
-        -- metadata --
-        -- spec --
-        + String sonarName (optional)
-        + String profileName
-        + File rules
-        -- status --
-      }
-      SonarQualityProfile .u.> Sonar : owner ref
-
-      class SonarQualityGate {
-        -- annotations --
-        -- metadata --
-        -- spec --
-        + String sonarName (optional)
-        + String gateName
-        + File gates
-        -- status --
-      }
-      SonarQualityGate .u.> Sonar : owner ref
+    class Nexus {
+      -- annotations --
+      - String is-credentials
+      - String ci-credentials
+      -- metadata --
+      -- spec --
+	    + String version
+      + Struct volumes
+      -- status --
+      - Bool Available
+      - Time LastTimeUpdated
+      - String Status
     }
+    Nexus -u-> JenkinsComponentIntegration :create
+    Nexus -u-> KeycloakComponentIntegration :create
 
-    git -u-> GitServer :create
-    package git {
-      package gerrit {
-        class Gerrit {
-          -- annotations --
-          -- metadata --
-          -- spec --
-          -- status --
-        }
-
-        class GerritRepository {
-          -- annotations --
-          -- metadata --
-          -- spec --
-          + String gerritName (optional)
-          + String repositoryName
-          + GitDetails source
-          -- status --
-        }
-        GerritRepository .u.> Gerrit : owner ref
-
-      }
+    class NexusUser {
+      -- annotations --
+      -- metadata --
+      -- spec --
+	    + String nexusName (optional)
+	    + String name
+      + Struct role
+      -- status --
+    }
+    NexusUser .u.> Nexus : owner ref
 
 
-      package bitbucket {
-        class BitBucket {
-          -- annotations --
-          -- metadata --
-          -- spec --
-          -- status --
-        }
-      }
+    class Sonar {
+      -- annotations --
+      -- metadata --
+      -- spec --
+	    + String version
+      -- status --
+    }
+    Sonar -u-> JenkinsComponentIntegration :create
+    Sonar -u-> KeycloakComponentIntegration :create
 
-      package gitlab {
-        class Gitllab {
-          -- annotations --
-          -- metadata --
-          -- spec --
-          -- status --
-        }
-      }
-     }
+    class BitBucket {
+      -- annotations --
+      -- metadata --
+      -- spec --
+      -- status --
+    }
+    BitBucket -u-> GitComponentIntegration :create
+
+
+    class Gitllab {
+      -- annotations --
+      -- metadata --
+      -- spec --
+      -- status --
+    }
+    Gitllab -u-> GitComponentIntegration :create
+
+'    EdpComponent<|--Gerrit
+'    EdpComponent<|--Nexus
+'    EdpComponent<|--Sonar
+'    EdpComponent<|--BitBucket
+'    EdpComponent<|--Gitlab
   }
 }
 
@@ -465,14 +490,6 @@ legend
 |= arrow   |= meaning|
 |  ..>     |   owner references  |
 |  -->     |   creates     |
-|<back:LightGoldenRodYellow>    </back>| Work In Progress |
-|<back:LightGreen>    </back>| Implemented |
-|<back:Khaki>    </back>| TBD |
 endlegend
 
-skinparam class {
-	backgroundColor<<wip>> LightGoldenRodYellow
-	backgroundColor<<impl>> LightGreen
-	backgroundColor<<tbd>> Khaki
-}
 @enduml
