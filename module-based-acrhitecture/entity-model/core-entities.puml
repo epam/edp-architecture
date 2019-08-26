@@ -326,6 +326,7 @@ package edp.epam.com {
         -- spec --
         + String version
         + Struct volumes
+        + Struct users
         -- status --
         - Bool Available
         - Time LastTimeUpdated
