@@ -183,8 +183,9 @@ package edp.epam.com {
       class GitServer {
       -- metadata --
       -- spec --
-        String remoteRepoUrl
-        String gerritUser
+        String gitHost
+        String httpsPort
+        String sshPort
         Secret gerritSshKey
         boolean createCodeReviewPipeline
       -- status --
