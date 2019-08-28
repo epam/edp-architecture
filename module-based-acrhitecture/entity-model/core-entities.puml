@@ -186,7 +186,7 @@ package edp.epam.com {
         String gitHost
         String httpsPort
         String sshPort
-        Secret gerritSshKey
+        Secret privateSshKey
         boolean createCodeReviewPipeline
       -- status --
       }
