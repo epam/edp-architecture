@@ -329,31 +329,47 @@ package edp.epam.com {
         + Struct volumes
         + Struct users
         -- status --
-        - Bool Available
-        - Time LastTimeUpdated
-        - String Status
+        - Bool available
+        - Time lastTimeUpdated
+        - String status
       }
 
-      class NexusUser {
+      class NexusInstaller <<tbd>> {
+      -- metadata --
+      -- spec --
+        String version
+      -- status --
+      }
+      NexusInstaller <-r- Nexus : created if type of component is internal
+
+
+      class NexusUser <<tbd>> {
         -- metadata --
         -- spec --
         + String nexusName (optional)
         + String name
         + Struct role
+        + String email
+        + String firstName
+        + String lastName
         -- status --
         -- reconcile --
-        +UserInNexus
+        +addUserInNexus()
       }
       NexusUser .u.> Nexus : owner ref
 
-      class NexusRepository {
+      class NexusScript <<tbd>> {
         -- metadata --
         -- spec --
         + String nexusName (optional)
         + String name
+        + String configMapName
+        + String configMapKey
         -- status --
+        -- reconcile --
+        +addScriptInNexus()
       }
-      NexusRepository .u.> Nexus : owner ref
+      NexusScript .u.> Nexus : owner ref
     }
 
     package sonar {
@@ -362,28 +378,36 @@ package edp.epam.com {
         -- spec --
         + String version
         -- status --
+        -- reconcile --
+        checkSonarClientConnection()
+        getSonarQualityGates()
+        getSonarQualityProfiles()
       }
 
+      class SonarInstaller <<tbd>> {
+      -- metadata --
+      -- spec --
+        String version
+      -- status --
+      }
+      SonarInstaller <-r- Sonar : created if type of component is internal
 
-      class SonarQualityProfile {
+      class SonarQualityProfile<<tbd>> {
         -- metadata --
         -- spec --
-        + String sonarName (optional)
         + String profileName
-        + File rules
         -- status --
       }
-      SonarQualityProfile .u.> Sonar : owner ref
+      SonarQualityProfile <-d- Sonar : create
 
-      class SonarQualityGate {
+      class SonarQualityGate<<tbd>> {
         -- metadata --
         -- spec --
         + String sonarName (optional)
         + String gateName
-        + File gates
         -- status --
       }
-      SonarQualityGate .u.> Sonar : owner ref
+      SonarQualityGate <-d-  Sonar : owner ref
     }
 
     git -u-> GitServer :create
@@ -437,8 +461,8 @@ legend
 endlegend
 
 skinparam class {
-	backgroundColor<<wip>> LightGoldenRodYellow
-	backgroundColor<<impl>> LightGreen
+	backgroundColor<<impl>> LightGoldenRodYellow
+	backgroundColor<<wip>> LightGreen
 	backgroundColor<<tbd>> Khaki
 }
 @enduml
