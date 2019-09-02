@@ -429,6 +429,15 @@ package edp.epam.com {
         }
         GerritRepository .u.> Gerrit : owner ref
 
+        class GerritReplicationConfig {
+                  -- metadata --
+                  -- spec --
+                  + String ownerName (optional)
+                  + String sshUrl
+                  -- status --
+                }
+                GerritReplicationConfig .u.> Gerrit : owner ref
+
       }
 
 
