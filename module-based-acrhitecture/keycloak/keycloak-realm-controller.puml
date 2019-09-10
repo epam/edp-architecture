@@ -13,16 +13,18 @@ Keycloak server web URL \n\
 Keycloak admin login \n\
 Keycloak admin password \n\
 Central Keycloak realm name "Aka Openshift" \n\
-Realm name (default value = namespace.main)
+Realm name (default value = namespace.main) \n\
+Users
 
 activate keycloak_controller
 keycloak_controller -> cr_realm: Create \n\
 **Params**: \n\
 Realm Name \n\
-Owner reference
+Owner reference \n\
+Users
 deactivate keycloak_controller
 
-cr_realm -> keycloak_realm_controller: Read\n**Params:**\nRealm Name
+cr_realm -> keycloak_realm_controller: Read\n**Params:**\nRealm Name\nUsers
 
 activate keycloak_realm_controller
 keycloak_realm_controller -> keycloak_realm_controller: Validate params:\nRealm name = namespace.name
@@ -45,6 +47,12 @@ Update external identity provider for realm \n\
 **Params:** \n\
 Central Keycloak realm name \n\
 EDP Client credentials
+
+keycloak_realm_controller -> server: \
+Create users in realm \n\
+**Params:** \n\
+Central Keycloak realm name \n\
+Users
 
 deactivate keycloak_realm_controller
 
