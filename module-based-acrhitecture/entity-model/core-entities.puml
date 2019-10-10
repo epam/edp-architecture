@@ -255,9 +255,27 @@ package edp.epam.com {
       class Jenkins {
       -- metadata --
       -- spec --
+        + String image
+        + String version
+        + Struct volumes
+        + Struct sharedLibraries
+        + Struct keycloakSpec
+        + Struct: edpEpec
       -- status --
+        + Struct slaves
+        + String AdminSecretName
       }
       EdpComponent<|--Jenkins
+
+      class JenkinsScript {
+      -- metadata --
+      -- spec --
+        String sourceConfigMapName
+      -- status --
+        + Bool available
+        + Bool executed
+      }
+      JenkinsScript .u.> Jenkins : "owner reference"
 
       class JenkinsInstaller {
       -- metadata --
@@ -280,6 +298,8 @@ package edp.epam.com {
       -- spec --
         Credentials credentials
       -- status --
+        + Bool available
+        + Bool created
       }
       JenkinsServiceAccount .u.> Jenkins : "owner reference"
 
