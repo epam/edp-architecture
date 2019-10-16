@@ -283,6 +283,7 @@ package edp.epam.com {
       -- status --
         + Struct slaves
         + String AdminSecretName
+        + Struct jobProvisions
       }
       EdpComponent<|--Jenkins
 
