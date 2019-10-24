@@ -3,8 +3,6 @@
 
 package edp.epam.com {
 
-  domain -r-> vcs: create repositories and bracnhes
-  domain -r-> jenkins: create JenkinsFolder and JenkinsJob
 
   package domain {
 
@@ -148,72 +146,69 @@ package edp.epam.com {
   }
 
   package api {
-    class DeliverySpace {
+
+    class EdpComponent {
       -- metadata --
+      String name
       -- spec --
-      EDPComponent[] components
+      String componentType
+      String url
+      String icon
       -- status --
     }
-
-
-
-    enum EdpLocationType {
-      EXTERNAL
-      INTERNAL
-    }
-    EdpComponent -r-> EdpLocationType
-
-    abstract class EdpComponent {
-      -- metadata --
-      EdpComponentType[] componentTypes
-      String edpTenant
-      -- spec --
-      EdpLocationType location
-      String version
-      String extrenalUrl
-      Credentials credentials
-      -- status --
-      boolean clientActive
-      externalUrl
-    }
-    EdpComponent .u.> DeliverySpace : owner ref
 
     vcs -r[hidden]-> keycloak
     package vcs {
       class GitServer {
       -- metadata --
+        String name
       -- spec --
         String gitHost
+        String gitUser
         String httpsPort
         String sshPort
-        Secret privateSshKey
+        GitServerSecret nameSshKeySecret
         boolean createCodeReviewPipeline
       -- status --
+        boolean available
       }
-      class GitRepository {
+      EdpComponent <.u. GitServer : "owner reference"
+
+      class GitServerSecret <extends Secret> {
       -- metadata --
+        String name
+      -- data --
+        String id_rsa
+        String id_rsa.pub
+        String username
+      }
+      GitServerSecret <-d- GitServer : "reference by nameSshKeySecret"
+
+
+      class GitRepository <<tbd>> {
+      -- metadata --
+        String name
       -- spec --
-        String repositoryName
       -- status --
+        boolean available
       }
       GitRepository .u.> GitServer : "owner reference"
 
-      class GitBranch {
-      -- metadata --
-      -- spec --
-        String name
-      -- status --
-      }
-      GitBranch .u.> GitRepository : "owner reference"
     }
 
     package keycloak {
       class Keycloak {
       -- metadata --
+        String name
       -- spec --
+        String url
+        KeycloakSecret secret
+        String ssoRealmName
+        KeycloakUserStruct[] users
       -- status --
+        boolean available
       }
-      EdpComponent<|--Keycloak
+      EdpComponent <.u. Keycloak : "owner reference"
 
       class KeycloakInstaller<<tbd>> {
       -- metadata --
@@ -223,24 +218,59 @@ package edp.epam.com {
       }
       KeycloakInstaller <-r- Keycloak : create if type of \n component is internal
 
+      class KeycloakUserStruct <internal Struct> {
+          String username
+          String[] realmRoles
+      }
+      KeycloakUserStruct <-d- Keycloak : "internal structure"
+
+      class KeycloakSecret <extends Secret> {
+      -- metadata --
+        String name
+      -- data --
+        String username
+        String password
+      }
+      KeycloakSecret <-d- Keycloak : "reference by secret"
+
       class KeycloakRealm {
       -- metadata --
-      -- spec --
         String name
+      -- spec --
+        String realmName
+        String ssoRealmName
+        KeycloakUserStruct[] users
       -- status --
+        boolean available
       }
-      KeycloakRealm <-d- Keycloak : create
+      KeycloakRealm <-d- Keycloak : "create realm with name "main" \r realmName = namespace + "-" + name"
+      KeycloakUserStruct <-r- KeycloakRealm
 
       class KeycloakClient {
       -- metadata --
-      -- spec --
-        String realmname
         String name
+      -- spec --
+        String clientId
+        boolean advancedProtocolMappers
+        String[] clientRoles
+        boolean directAccess
+        boolean public
+        KeycloakClientSecret secret
+        String targetRealm
+        String webUrl
       -- status --
       }
       KeycloakClient .u.> KeycloakRealm : "owner reference"
 
-      class KeycloakUser {
+      class KeycloakClientSecret <extends Secret> {
+      -- metadata --
+        String name
+      -- data --
+        String clientSecret
+      }
+      KeycloakClientSecret <-d- KeycloakClient : "reference by secret"
+
+      class KeycloakUser <<tbd>> {
       -- metadata --
       -- spec --
         String username
@@ -254,31 +284,91 @@ package edp.epam.com {
     package jenkins {
       class Jenkins {
       -- metadata --
+        String name
       -- spec --
-        + String image
-        + String version
-        + Struct volumes
-        + Struct sharedLibraries
-        + Struct keycloakSpec
-        + Struct: edpEpec
+        String image
+        String version
+        JenkinsVolumeStruct[] volumes
+        JenkinsSharedLibraryStruct[] sharedLibraries
+        JenkinsKeycloakStruct keycloakSpec
+        JenkinsEdpSpecStruct: edpSpec
       -- status --
-        + Struct slaves
-        + String AdminSecretName
-        + Struct jobProvisions
+        boolean available
+        JenkinsAdminSecret adminSecretName
+        JenkinsSlaveStruct[] slaves
+        JenkinsJobProvisionStruct jobProvisions
       }
-      EdpComponent<|--Jenkins
+      EdpComponent <.u. Jenkins : "owner reference"
+
+      class JenkinsVolumeStruct <internal Struct> {
+          String name
+          String storageClass
+          String capacity
+      }
+      JenkinsVolumeStruct <-- Jenkins : "internal structure"
+
+      class JenkinsSharedLibraryStruct <internal Struct> {
+          String name
+          String id
+          String repository
+          String version
+      }
+      JenkinsSharedLibraryStruct <-- Jenkins : "internal structure"
+
+      class JenkinsKeycloakStruct <internal Struct> {
+          boolean enabled
+          String url
+      }
+      JenkinsKeycloakStruct <-- Jenkins : "internal structure \r(need to be revised)"
+
+      class JenkinsEdpSpecStruct <internal Struct> {
+          String dnsWildcard
+      }
+      JenkinsEdpSpecStruct <-- Jenkins : "internal structure \r(need to be revised)"
+
+
+      class JenkinsAdminSecret <extends Secret> {
+      -- metadata --
+        String name
+      -- data --
+        String username
+        String password
+      }
+      JenkinsAdminSecret <-- Jenkins : "reference by adminSecretName"
+
+      class JenkinsSlaveStruct <internal Struct> {
+          String name
+      }
+      JenkinsSlaveStruct <-- Jenkins : "internal structure"
+
+      class JenkinsJobProvisionStruct <internal Struct> {
+          String name
+      }
+      JenkinsJobProvisionStruct <-- Jenkins : "internal structure"
+
 
       class JenkinsScript {
       -- metadata --
+        String name
       -- spec --
         String sourceConfigMapName
+        String ownerName
       -- status --
         + Bool available
         + Bool executed
       }
       JenkinsScript .u.> Jenkins : "owner reference"
 
-      class JenkinsInstaller {
+      class JenkinsScriptSourceConfigMap <extends ConfigMap> {
+      -- metadata --
+        String name
+      -- data --
+        String context
+      }
+      JenkinsScriptSourceConfigMap <-d- JenkinsScript : "reference by sourceConfigMapName"
+
+
+      class JenkinsInstaller <<tbd>> {
       -- metadata --
       -- spec --
         String version
@@ -286,25 +376,29 @@ package edp.epam.com {
       }
       JenkinsInstaller <-r- Jenkins : created if type of component is internal
 
-      class JenkinsPlugin {
-      -- metadata --
-      -- spec --
-        String pluginInstruction
-      -- status --
-      }
-      JenkinsPlugin .u.> Jenkins : "owner reference"
-
       class JenkinsServiceAccount {
       -- metadata --
+        String name
       -- spec --
-        Credentials credentials
+        String type
+        JenkinsServiceAccountSecret credentials
+        String ownerName
       -- status --
         + Bool available
         + Bool created
       }
       JenkinsServiceAccount .u.> Jenkins : "owner reference"
 
-      class JenkinsFolder {
+      class JenkinsServiceAccountSecret <extends Secret> {
+      -- metadata --
+        String name
+      -- data --
+        String username
+        String password
+      }
+      JenkinsServiceAccountSecret <-d- JenkinsServiceAccount : "reference by credentials"
+
+      class JenkinsFolder <<tbd>> {
       -- metadata --
       creates folder with \n create release pipeline
       -- spec --
@@ -313,7 +407,7 @@ package edp.epam.com {
       }
       JenkinsFolder .u.> Jenkins : "owner reference"
 
-      class JenkinsJob {
+      class JenkinsJob <<tbd>> {
       -- metadata --
       -- spec --
         String name
@@ -324,7 +418,7 @@ package edp.epam.com {
       }
       JenkinsJob .u.> JenkinsFolder : "owner reference"
 
-      class JenkinsJobBuild {
+      class JenkinsJobBuild <<tbd>> {
       -- metadata --
       -- spec --
       -- status --
@@ -333,11 +427,10 @@ package edp.epam.com {
 
   }
 
-  EdpComponent<|--components: all components inherit EDPComponent
-
-  components -u-> JenkinsServiceAccount :create
-  components -u-> JenkinsPlugin :create
-  components -u-> KeycloakClient :create
+'  EdpComponent <.u.components: : "owner reference from a component"
+  components -u-> jenkins  : "create JenkinsServiceAccount"
+  components -u-> keycloak : "create keycloakClient"
+  components -u-> git : "create keycloakClient"
 
   package components {
     package nexus {
@@ -354,6 +447,7 @@ package edp.epam.com {
         - Time lastTimeUpdated
         - String status
       }
+      Nexus -u[hidden]-> JenkinsJobBuild
 
       class NexusInstaller <<tbd>> {
       -- metadata --
@@ -431,7 +525,6 @@ package edp.epam.com {
       SonarQualityGate <-d-  Sonar : owner ref
     }
 
-    git -u-> GitServer :create
     package git {
       package gerrit {
         class Gerrit {
@@ -439,6 +532,7 @@ package edp.epam.com {
           -- spec --
           -- status --
         }
+        Gerrit -u-> GitServer :create
 
         class GerritRepository {
           -- metadata --
@@ -459,23 +553,6 @@ package edp.epam.com {
                 }
                 GerritReplicationConfig .u.> Gerrit : owner ref
 
-      }
-
-
-      package bitbucket {
-        class BitBucket {
-          -- metadata --
-          -- spec --
-          -- status --
-        }
-      }
-
-      package gitlab {
-        class Gitllab {
-          -- metadata --
-          -- spec --
-          -- status --
-        }
       }
      }
   }
