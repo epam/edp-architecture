@@ -1,0 +1,107 @@
+@startuml
+
+skinparam class {
+    BackgroundColor #white
+}
+
+class AdminConsoleOperator {
++AdminConsole
++AdminConsoleController()
+}
+class CDPipelineOperator {
++CDPipeline
++Stage
++CDPipelineController()
++StageController()
+}
+class CodebaseOperator {
++Codebase
++CodebaseBranch
++CodebaseImageStream
++GitServer
++CodebaseController()
++CodebaseBranchController()
++GitServerController()
+}
+class EDPComponentOperator {
++EDPComponent
+}
+class GerritOperator #lemonchiffon {
++Gerrit
++GerritReplicationConfig
++GerritController()
++GerritReplicationConfigController()
+}
+class JenkinsOperator {
++Jenkins
++JenkinsFolder
++JenkinsJob
++JenkinsScript
++JenkinsServiceAccount
++JenkinsController()
++JenkinsFolderController()
++JenkinsJobController()
++JenkinsScriptController()
++JenkinsServiceAccountController()
+}
+class KeycloakOperator {
++Keycloak
++KeycloakClient
++KeycloakRealm
++KeycloakController()
++KeycloakClientController()
++KeycloakRealmController()
+}
+class NexusOperator  {
++Nexus
++NexusController()
+}
+class SonarOperator {
++Sonar
++SonarController()
+}
+class Reconciler {
++CDPipelineController()
++CodebaseController()
++CodebaseBranchController()
++EDPComponentController()
++GitServerController()
++JenkinsSlaveController(Jenkins)
++JobProvisioningController(Jenkins)
++StageController()
++TemplateController()
+}
+
+AdminConsoleOperator --> EDPComponentOperator
+AdminConsoleOperator --> KeycloakOperator
+CDPipelineOperator --> CodebaseOperator
+CDPipelineOperator --> JenkinsOperator
+CodebaseOperator --> JenkinsOperator
+GerritOperator --> EDPComponentOperator
+GerritOperator --> JenkinsOperator
+GerritOperator --> KeycloakOperator
+JenkinsOperator --> CDPipelineOperator
+JenkinsOperator --> CodebaseOperator
+JenkinsOperator --> EDPComponentOperator
+JenkinsOperator --> GerritOperator
+JenkinsOperator --> KeycloakOperator
+KeycloakOperator --> EDPComponentOperator
+KeycloakOperator --> JenkinsOperator
+NexusOperator --> EDPComponentOperator
+NexusOperator --> JenkinsOperator
+NexusOperator --> KeycloakOperator
+SonarOperator --> EDPComponentOperator
+SonarOperator --> JenkinsOperator
+SonarOperator --> KeycloakOperator
+Reconciler --> CDPipelineOperator
+Reconciler --> CodebaseOperator
+Reconciler --> EDPComponentOperator
+Reconciler --> JenkinsOperator
+
+legend
+|= |= Type |
+|<back:white>   </back>| Implemented Openshift&K8S |
+|<back:#lemonchiffon>   </back>| Implemented Openshift |
+endlegend
+
+@enduml
