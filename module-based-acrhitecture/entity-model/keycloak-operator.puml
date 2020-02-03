@@ -1,0 +1,99 @@
+@startuml
+package com.epam.edp.keycloak {
+  class Keycloak {
+  -- metadata --
+    String name
+  -- spec --
+    String url
+    KeycloakSecret secret
+    String ssoRealmName
+    KeycloakUserStruct[] users
+  -- status --
+    boolean available
+  }
+
+  class KeycloakInstaller<<tbd>> {
+  -- metadata --
+  -- spec --
+    String version
+  -- status --
+  }
+  KeycloakInstaller <-r- Keycloak : create if type of \n component is internal
+
+  class KeycloakUserStruct <internal Struct> {
+      String username
+      String[] realmRoles
+  }
+  KeycloakUserStruct <-d- Keycloak : "internal structure"
+
+  class KeycloakSecret <extends Secret> {
+  -- metadata --
+    String name
+  -- data --
+    String username
+    String password
+  }
+  KeycloakSecret <-d- Keycloak : "reference by secret"
+
+  class KeycloakRealm {
+  -- metadata --
+    String name
+  -- spec --
+    String realmName
+    String ssoRealmName
+    KeycloakUserStruct[] users
+  -- status --
+    boolean available
+  }
+  KeycloakRealm <-d- Keycloak : "create realm with name "main" \r realmName = namespace + "-" + name"
+  KeycloakUserStruct <-r- KeycloakRealm
+
+  class KeycloakClient {
+  -- metadata --
+    String name
+  -- spec --
+    String clientId
+    boolean advancedProtocolMappers
+    String[] clientRoles
+    boolean directAccess
+    boolean public
+    KeycloakClientSecret secret
+    String targetRealm
+    String webUrl
+  -- status --
+  }
+  KeycloakClient .u.> KeycloakRealm : "owner reference"
+
+  class KeycloakClientSecret <extends Secret> {
+  -- metadata --
+    String name
+  -- data --
+    String clientSecret
+  }
+  KeycloakClientSecret <-d- KeycloakClient : "reference by secret"
+
+  class KeycloakUser <<tbd>> {
+  -- metadata --
+  -- spec --
+    String username
+    String[] roles
+  -- status --
+  }
+  KeycloakUser .u.> KeycloakRealm : "owner reference \n created from KeyCloak "
+
+}
+legend
+|= arrow   |= meaning|
+|  ..>     |   owner references  |
+|  -->     |   creates     |
+|<back:LightGoldenRodYellow>    </back>| Work In Progress |
+|<back:LightGreen>    </back>| Implemented |
+|<back:Khaki>    </back>| TBD |
+endlegend
+
+skinparam class {
+	backgroundColor<<impl>> LightGoldenRodYellow
+	backgroundColor<<wip>> LightGreen
+	backgroundColor<<tbd>> Khaki
+}
+@enduml

@@ -1,0 +1,20 @@
+@startuml
+
+package com.epam.edp.adminconsole {
+}
+
+legend
+|= arrow   |= meaning|
+|  ..>     |   owner references  |
+|  -->     |   creates     |
+|<back:LightGoldenRodYellow>    </back>| Work In Progress |
+|<back:LightGreen>    </back>| Implemented |
+|<back:Khaki>    </back>| TBD |
+endlegend
+
+skinparam class {
+	backgroundColor<<impl>> LightGoldenRodYellow
+	backgroundColor<<wip>> LightGreen
+	backgroundColor<<tbd>> Khaki
+}
+@enduml

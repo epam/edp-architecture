@@ -1,0 +1,45 @@
+@startuml
+
+package com.epam.edp.gerrit {
+    class Gerrit {
+      -- metadata --
+      -- spec --
+      -- status --
+    }
+    Gerrit -u-> GitServer :create
+
+    class GerritRepository {
+      -- metadata --
+      -- spec --
+      + String gerritName (optional)
+      + String repositoryName
+      + GitDetails source
+      -- status --
+    }
+    GerritRepository .u.> Gerrit : owner ref
+
+    class GerritReplicationConfig {
+              -- metadata --
+              -- spec --
+              + String ownerName (optional)
+              + String sshUrl
+              -- status --
+    }
+    GerritReplicationConfig .u.> Gerrit : owner ref
+}
+
+legend
+|= arrow   |= meaning|
+|  ..>     |   owner references  |
+|  -->     |   creates     |
+|<back:LightGoldenRodYellow>    </back>| Work In Progress |
+|<back:LightGreen>    </back>| Implemented |
+|<back:Khaki>    </back>| TBD |
+endlegend
+
+skinparam class {
+	backgroundColor<<impl>> LightGoldenRodYellow
+	backgroundColor<<wip>> LightGreen
+	backgroundColor<<tbd>> Khaki
+}
+@enduml
