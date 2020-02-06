@@ -117,25 +117,33 @@ package com.epam.edp.jenkins {
   }
   JenkinsServiceAccountSecret <-d- JenkinsServiceAccount : "reference by credentials"
 
-  class JenkinsFolder <<tbd>> {
+  class JenkinsFolder {
   -- metadata --
-  creates folder with \n create release pipeline
+  creates folder with create release pipeline
   -- spec --
-    String name
+    String codebaseName
+    String ownerName
+    String jobName
   -- status --
+    String jenkinsJobProvisionBuildNumber
   }
   JenkinsFolder .u.> Jenkins : "owner reference"
 
-  class JenkinsJob <<tbd>> {
+  class JenkinsJob {
   -- metadata --
   -- spec --
-    String name
-    Trigger trigger
-    Map[] parameters
-    JobSource jobSource
+    String ownerName
+    String stageName
+    Job job
   -- status --
   }
   JenkinsJob .u.> JenkinsFolder : "owner reference"
+
+  class Job <internal Struct> {
+      String name
+      String config
+  }
+  Job <-- JenkinsJob : "internal structure"
 
   class JenkinsJobBuild <<tbd>> {
   -- metadata --
