@@ -72,31 +72,31 @@ class Reconciler {
 +TemplateController()
 }
 
-AdminConsoleOperator --> EDPComponentOperator
-AdminConsoleOperator --> KeycloakOperator
-CDPipelineOperator --> CodebaseOperator
-CDPipelineOperator --> JenkinsOperator
-CodebaseOperator --> JenkinsOperator
-GerritOperator --> EDPComponentOperator
-GerritOperator --> JenkinsOperator
-GerritOperator --> KeycloakOperator
-JenkinsOperator --> CDPipelineOperator
-JenkinsOperator --> CodebaseOperator
-JenkinsOperator --> EDPComponentOperator
-JenkinsOperator --> GerritOperator
-JenkinsOperator --> KeycloakOperator
-KeycloakOperator --> EDPComponentOperator
-KeycloakOperator --> JenkinsOperator
-NexusOperator --> EDPComponentOperator
-NexusOperator --> JenkinsOperator
-NexusOperator --> KeycloakOperator
-SonarOperator --> EDPComponentOperator
-SonarOperator --> JenkinsOperator
-SonarOperator --> KeycloakOperator
-Reconciler --> CDPipelineOperator
-Reconciler --> CodebaseOperator
-Reconciler --> EDPComponentOperator
-Reconciler --> JenkinsOperator
+AdminConsoleOperator --> EDPComponentOperator : api
+AdminConsoleOperator --> KeycloakOperator : api, keycloakHelper
+CDPipelineOperator --> CodebaseOperator : api
+CDPipelineOperator --> JenkinsOperator : api, spec (const)
+CodebaseOperator --> JenkinsOperator : helper
+GerritOperator --> EDPComponentOperator : api
+GerritOperator --> JenkinsOperator : api, helper
+GerritOperator --> KeycloakOperator : api
+JenkinsOperator --> CDPipelineOperator : api
+JenkinsOperator --> CodebaseOperator : api, openshift, util, model
+JenkinsOperator --> EDPComponentOperator : api
+JenkinsOperator --> GerritOperator : api, spec (const)
+JenkinsOperator --> KeycloakOperator : api
+KeycloakOperator --> EDPComponentOperator : api
+KeycloakOperator --> JenkinsOperator : helper
+NexusOperator --> EDPComponentOperator : api
+NexusOperator --> JenkinsOperator : api, helper
+NexusOperator --> KeycloakOperator : api, keycloakHelper
+SonarOperator --> EDPComponentOperator : api
+SonarOperator --> JenkinsOperator : api, helper
+SonarOperator --> KeycloakOperator : api
+Reconciler --> CDPipelineOperator : api
+Reconciler --> CodebaseOperator : api
+Reconciler --> EDPComponentOperator : api
+Reconciler --> JenkinsOperator : api
 
 legend
 |= |= Type |
