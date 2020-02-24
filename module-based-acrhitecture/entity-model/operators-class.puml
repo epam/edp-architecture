@@ -76,7 +76,7 @@ AdminConsoleOperator --> EDPComponentOperator : api
 AdminConsoleOperator --> KeycloakOperator : api, keycloakHelper
 CDPipelineOperator --> CodebaseOperator : api
 CDPipelineOperator --> JenkinsOperator : api, spec (const)
-CodebaseOperator --> JenkinsOperator : helper
+CodebaseOperator --> JenkinsOperator : api
 GerritOperator --> EDPComponentOperator : api
 GerritOperator --> JenkinsOperator : api, helper
 GerritOperator --> KeycloakOperator : api
