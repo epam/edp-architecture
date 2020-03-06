@@ -1,0 +1,129 @@
+@startuml
+
+skinparam class {
+    BackgroundColor #white
+}
+
+class AdminConsoleOperator {
++AdminConsole
++AdminConsoleController()
+}
+class CDPipelineOperator {
++CDPipeline
++Stage
++CDPipelineController()
++StageController()
+}
+class CodebaseOperator {
++Codebase
++CodebaseBranch
++CodebaseImageStream
++GitServer
++CodebaseController()
++CodebaseBranchController()
++GitServerController()
+}
+class EDPComponentOperator {
++EDPComponent
+}
+class GerritOperator #lemonchiffon {
++Gerrit
++GerritReplicationConfig
++GerritController()
++GerritReplicationConfigController()
+}
+class JenkinsOperator {
++Jenkins
++JenkinsFolder
++JenkinsJob
++JenkinsScript
++JenkinsServiceAccount
++JenkinsController()
++JenkinsFolderController()
++JenkinsJobController()
++JenkinsScriptController()
++JenkinsServiceAccountController()
+}
+class KeycloakOperator {
++Keycloak
++KeycloakClient
++KeycloakRealm
++KeycloakController()
++KeycloakClientController()
++KeycloakRealmController()
+}
+class NexusOperator  {
++Nexus
++NexusController()
+}
+class SonarOperator {
++Sonar
++SonarController()
+}
+class Reconciler {
++CDPipelineController()
++CodebaseController()
++CodebaseBranchController()
++EDPComponentController()
++GitServerController()
++JenkinsSlaveController(Jenkins)
++JobProvisioningController(Jenkins)
++StageController()
++TemplateController()
+}
+class EDPUtils {
+}
+
+EDPUtils -[hidden]- EDPComponentOperator
+EDPUtils <-- JenkinsOperator : helper
+EDPUtils <-- KeycloakOperator : helper
+EDPUtils <-- NexusOperator : helper
+EDPUtils <-- SonarOperator : helper
+EDPUtils <-- GerritOperator : helper
+
+EDPComponentOperator -[hidden] CDPipelineOperator
+EDPComponentOperator -[hidden] CodebaseOperator
+EDPComponentOperator -[hidden] Reconciler
+EDPComponentOperator -[hidden]- KeycloakOperator
+EDPComponentOperator <-- KeycloakOperator : api
+EDPComponentOperator <-- JenkinsOperator : api
+EDPComponentOperator <-- GerritOperator : api
+EDPComponentOperator <-- NexusOperator : api
+EDPComponentOperator <-- SonarOperator : api
+EDPComponentOperator <-- AdminConsoleOperator : api
+EDPComponentOperator <- Reconciler : api
+
+CDPipelineOperator <- Reconciler : api
+CDPipelineOperator <-- JenkinsOperator : api
+CDPipelineOperator --> JenkinsOperator : api, const
+
+CodebaseOperator <- Reconciler : api
+CodebaseOperator <- CDPipelineOperator : api
+CodebaseOperator <-- JenkinsOperator : api, openshift, util, model
+CodebaseOperator --> JenkinsOperator : api
+
+KeycloakOperator -[hidden] JenkinsOperator
+KeycloakOperator -[hidden]- AdminConsoleOperator
+KeycloakOperator <-- NexusOperator : api
+KeycloakOperator <-- SonarOperator : api
+KeycloakOperator <-- GerritOperator : api
+KeycloakOperator <-- AdminConsoleOperator : api
+KeycloakOperator <- JenkinsOperator : api
+
+JenkinsOperator <-- NexusOperator : api
+JenkinsOperator <-- SonarOperator : api
+JenkinsOperator <-- GerritOperator : api
+JenkinsOperator <-d- Reconciler : api
+
+AdminConsoleOperator -[hidden] GerritOperator
+AdminConsoleOperator -[hidden] SonarOperator
+AdminConsoleOperator -[hidden] NexusOperator
+
+
+legend
+|= |= Type |
+|<back:white>   </back>| Implemented Openshift&K8S |
+|<back:#lemonchiffon>   </back>| Implemented Openshift |
+endlegend
+
+@enduml
