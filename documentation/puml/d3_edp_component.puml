@@ -1,0 +1,36 @@
+@startuml
+
+package "EDP Component" {
+  component "Docker Container" as docker 
+  component "K8S Objects to Run Docker Inside Kubernetes" as k8sobjects
+  component "K8S Custom Resource" as cr #C6E0AF
+  component "K8S Controller" as controller #C6E0AF
+  component "K8S Objects Representing Component Configuration" as configuration #C6E0AF
+  
+  controller -up-> cr :reacts to event from K8S/updates with links to configuration
+  controller -up-> configuration :creates
+  cr -left-> configuration :has a link to K8S configuration objects
+  controller -left-> k8sobjects :creates
+  controller -right-> docker :configures application via REST API
+}
+
+package "Other EDP Component" {
+  component "K8S Custom Resource" as othercr #C6E0AF
+  component "K8S Objects Representing Component Configuration" as otherconfiguration #C6E0AF
+  
+  controller -down-> othercr :reacts to chanages
+  controller -down-> otherconfiguration :consumes
+  othercr -down-> otherconfiguration :has a link to K8S configuration objects
+  component "K8S Objects Representing Component Configuration" as configuration #C6E0AF
+}
+
+legend left
+   Legend
+  |=       |= Component Type |
+  |<#LightYellow>| Mandatory Element|
+  |<#C6E0AF>| Optional Element|
+end legend
+
+
+
+@enduml
