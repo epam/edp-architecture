@@ -1,5 +1,6 @@
 # EDP Architecture 2.0
 
+## Overview
 EPAM Delivery Platform (EDP) is suitable for all aspects of delivery starting from development including the capability to deploy production environment. 
 EDP architecture is represented on a diagram below.
 
@@ -185,7 +186,7 @@ spec:
     kind: configmap 
   volumes:
   - name: "data"
-	capacity: "1Gi"
+    capacity: "1Gi"
   cacheStorage:
     enabled: true
     capacity: "1Gi"
@@ -277,4 +278,4 @@ The **ciUser**, **readUser**, **adminUser**, and **configuration** keys of the *
 ---
 ### Related Articles
  
-* [Add a New EDP Component](../documentation/add_new_edp_component.md) - adding a new component after the installation.
+* [Add a New EDP Component](../documentation/add_new_edp_component.md)
