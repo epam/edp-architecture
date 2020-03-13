@@ -1,0 +1,113 @@
+@startuml
+
+skinparam class {
+    BackgroundColor #white
+}
+
+class AdminConsoleOperator {
++AdminConsole
++AdminConsoleController()
+}
+
+class EDPOperator {
++Codebase
++CodebaseBranch
++CodebaseImageStream
++GitServer
++CDPipeline
++Stage
++EDPComponent
++CodebaseController()
++CodebaseDBController()
++CodebaseBranchController()
++CodebaseBranchDBController()
++GitServerController()
++GitServerDBController()
++TemplateDBController()
++EDPComponentDBController()
++CDPipelineController()
++CDPipelineDBController()
++StageController()
++StageDBController()
+}
+
+class GerritOperator #lemonchiffon {
++Gerrit
++GerritReplicationConfig
++GerritController()
++GerritReplicationConfigController()
+}
+class JenkinsOperator {
++Jenkins
++JenkinsFolder
++JenkinsJob
++JenkinsScript
++JenkinsServiceAccount
++JenkinsController()
++JenkinsFolderController()
++JenkinsJobController()
++JenkinsScriptController()
++JenkinsServiceAccountController()
++JenkinsSlaveDBController()
++JobProvisioningDBController()
+}
+class KeycloakOperator {
++Keycloak
++KeycloakClient
++KeycloakRealm
++KeycloakController()
++KeycloakClientController()
++KeycloakRealmController()
+}
+class NexusOperator  {
++Nexus
++NexusController()
+}
+class SonarOperator {
++Sonar
++SonarController()
+}
+
+class EDPUtils {
+}
+
+EDPUtils <-- JenkinsOperator : helper
+EDPUtils <-- KeycloakOperator : helper
+EDPUtils <-- NexusOperator : helper
+EDPUtils <-- SonarOperator : helper
+EDPUtils <-- GerritOperator : helper
+EDPUtils <-[hidden]- EDPOperator
+
+EDPOperator -[hidden]- KeycloakOperator
+EDPOperator <-- KeycloakOperator : api
+EDPOperator <-- GerritOperator : api
+EDPOperator <-- NexusOperator : api
+EDPOperator <-- SonarOperator : api
+EDPOperator <-- AdminConsoleOperator : api
+
+EDPOperator <-- JenkinsOperator : api, openshift, util, model
+
+KeycloakOperator -[hidden] JenkinsOperator
+KeycloakOperator -[hidden]- AdminConsoleOperator
+KeycloakOperator <-- NexusOperator : api
+KeycloakOperator <-- SonarOperator : api
+KeycloakOperator <-- GerritOperator : api
+KeycloakOperator <-- AdminConsoleOperator : api
+KeycloakOperator <- JenkinsOperator : api
+
+JenkinsOperator <-- NexusOperator : api
+JenkinsOperator <-- SonarOperator : api
+JenkinsOperator <-- GerritOperator : api
+
+AdminConsoleOperator -[hidden] GerritOperator
+AdminConsoleOperator -[hidden] SonarOperator
+AdminConsoleOperator -[hidden] NexusOperator
+
+
+legend
+|= |= Type |
+|<back:white>   </back>| Implemented Openshift&K8S |
+|<back:#lemonchiffon>   </back>| Implemented Openshift |
+endlegend
+
+@enduml
