@@ -15,5 +15,4 @@ To do this, follow one of the methods allowed:
 ### Related Articles:
 
 - [EDP Architecture 2.0](../documentation/architecture_2_0.md)
-- [EDP Components List](../documentation/edp_components.md)
 
