@@ -19,9 +19,13 @@ class CodebaseOperator {
 +CodebaseBranch
 +CodebaseImageStream
 +GitServer
++JiraServer
++JiraFixVersion
 +CodebaseController()
 +CodebaseBranchController()
 +GitServerController()
++JiraServerController()
++JiraFixVersionController()
 }
 class EDPComponentOperator {
 +EDPComponent
@@ -67,7 +71,9 @@ class Reconciler {
 +EDPComponentController()
 +GitServerController()
 +JenkinsSlaveController(Jenkins)
++JenkinsJobController(Jenkins)
 +JobProvisioningController(Jenkins)
++JiraServer()
 +StageController()
 +TemplateController()
 }
@@ -77,6 +83,7 @@ AdminConsoleOperator --> KeycloakOperator : api, keycloakHelper
 CDPipelineOperator --> CodebaseOperator : api
 CDPipelineOperator --> JenkinsOperator : api, spec (const)
 CodebaseOperator --> JenkinsOperator : api
+CodebaseOperator --> EDPComponentOperator : api
 GerritOperator --> EDPComponentOperator : api
 GerritOperator --> JenkinsOperator : api, helper
 GerritOperator --> KeycloakOperator : api
