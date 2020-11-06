@@ -5,7 +5,7 @@ For details, inspect the Table 1 below.
 
 _Table 1. EDP Source Code Repositories._
 
-|№| Repository Name  | Description  | 
+|№| <nobr>Repository Name</nobr>  | Description  | 
 |---|---|---|
 |1| [All-EDP-Projects](https://gerrit-oc-green-edp-cicd.delivery.aws.main.edp.projects.epam.com/admin/repos/All-EDP-Projects) | It is an empty repository without code where RBAC policy is set, i.e. some resources, groups or users have access and all their rights are applied to other child repositories. |
 |2| [All-Operators](https://gerrit-oc-green-edp-cicd.delivery.aws.main.edp.projects.epam.com/#/admin/projects/All-Operators) | It is an empty repository without code where RBAC policy is set, i.e. some resources, groups or users have access and all their rights are applied to other child repositories. | 
