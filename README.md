@@ -9,6 +9,7 @@ get acquainted with the respective EDP architecture documentation:
 
 ### Related Articles:
 
+- [EDP Components List](documentation/edp_components.md)
 - [Add a New EDP Component](documentation/add_new_edp_component.md)
 - [Develop an EDP Operator](documentation/develop_edp_operator.md)
 
