@@ -5,7 +5,7 @@ The _edp-architecture_ repository includes the basic and common architecture of 
 In order to explore the cross-cutting concerns with their technologies, technology stack, main elements, 
 get acquainted with the respective EDP architecture documentation:  
 
-- [EDP Architecture 2.0](https://github.com/epmd-edp/edp-architecture/blob/master/documentation/architecture_2_0.md#edp-architecture-20)
+- [EDP Architecture 2.0](https://github.com/epam/edp-architecture/blob/master/documentation/architecture_2_0.md#edp-architecture-20)
 
 ### Related Articles:
 

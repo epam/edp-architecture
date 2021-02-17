@@ -44,6 +44,6 @@ _Table 1. EDP Source Code Repositories._
 
 ### Related Articles
 
-- [EPAM Delivery Platform Overview](https://github.com/epmd-edp/edp-install/tree/master#epam-delivery-platform-rocket)
-- [EDP Architecture](https://github.com/epmd-edp/edp-architecture#edp-architecture) 
+- [EPAM Delivery Platform Overview](https://github.com/epam/edp-install/tree/master#epam-delivery-platform-rocket)
+- [EDP Architecture](https://github.com/epam/edp-architecture#edp-architecture) 
 
